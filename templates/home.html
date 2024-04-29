@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Tracking App</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% if user %}
+    <h2>Welcome, {{ user.username }}!</h2>
+    <p>Your teams:</p>
+    <ul>
+        {% for team in teams %}
+        <li>{{ team.team_name }}
+            <form action="{{ url_for('delete_team', team_id=team.id) }}" method="post" style="display: inline;">
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this team and all associated projects?');">Delete</button>
+            </form>
+            <ul>
+                {% for project in team_projects[team] %}
+                <li>{{ project.project_name }} - {{ project.description }} - {% if project.completed %}Completed{% else %}Not Completed{% endif %}
+                    <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post" style="display: inline;">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this project?');">Delete</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+    <h2>Login</h2>
+    <form method="POST" action="{{ url_for('login') }}">
+        {{ login_form.csrf_token }}
+        <div>
+            {{ login_form.username.label }}: {{ login_form.username(class="login_form form-control") }}
+        </div>
+        <div>
+            {{ login_form.password.label }}: {{ login_form.password(class="login_form form-control") }}
+        </div>
+        <div>
+            {{ login_form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+
+    <h1>Team Form</h1>
+    <form action="{{ url_for('add_team') }}" method="POST">
+        {{ team_form.csrf_token() }} {{ team_form.team_name.label }} {{ team_form.team_name }} {{ team_form.submit.label }} {{ team_form.submit }}
+    </form>
+
+    <h1>Project Form</Form></h1>
+    <div class="form-container">
+        <form action="{{ url_for('add_project') }}" method="POST">
+            {{ project_form.csrf_token() }} {{ project_form.project_name.label }} {{ project_form.project_name }} {{ project_form.description.label }} {{ project_form.description }} {{ project_form.completed.label }} {{ project_form.completed }} {{ project_form.team_selection.label }} {{ project_form.team_selection }} {{ project_form.submit.label }} {{ project_form.submit }}
+        </form>
+    </div>
+
+    <div>
+        <form action="{{ url_for('create_user') }}" method="POST">
+            <h2>Create New User</h2>
+            {{ user_form.hidden_tag() }}
+            <div>{{ user_form.username.label }}: {{ user_form.username }}</div>
+            <div>{{ user_form.password.label }}: {{ user_form.password }}</div>
+            {{ user_form.submit }}
+        </form>
+    </div>
+</body>
+</html>
